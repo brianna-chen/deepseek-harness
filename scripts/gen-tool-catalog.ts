@@ -54,6 +54,8 @@ import * as ToolGoal from '@deepseek-ai/dsh-tool-goal'
 import * as ToolSchedule from '@deepseek-ai/dsh-schedule'
 import Lsp from '@deepseek-ai/dsh-lsp'
 import * as ToolLsp from '@deepseek-ai/dsh-tool-lsp'
+import ComeHereGateway from '@deepseek-ai/dsh-host-come-here'
+import * as ToolComeHere from '@deepseek-ai/dsh-tool-come-here'
 import * as ToolSkill from '@deepseek-ai/dsh-tool-skill'
 import * as ToolSessionQuery from '@deepseek-ai/dsh-tool-session-query'
 import * as ToolTasks from '@deepseek-ai/dsh-tool-jobs'
@@ -375,6 +377,19 @@ const TOOL_PACKAGES: ToolPackage[] = [
       + 'Version 1 accepts after_seconds, explicit absolute at, and bounded fixed-rate every_seconds, '
       + 'and discloses session-local delivery; '
       + 'management reads and mutations require the shared Session persistence barrier.',
+  },
+  {
+    pkg: '@deepseek-ai/dsh-tool-come-here',
+    dir: 'tool-come-here',
+    source: 'packages/tool/tool-come-here/src/index.ts',
+    requires: ['ctx.tools', 'ctx.comeHere', 'ctx.systemPrompt'],
+    writes: ['tool/call', 'create-only instruction or skill files after explicit confirmation', 'tool/result'],
+    async mount(ctx) {
+      await ctx.plugin(ComeHereGateway)
+      await ctx.plugin(ToolComeHere)
+    },
+    note:
+      'Server-side Codex and Claude Code memory migration. Discover and preview are read-only; import requires confirmed:true and the Host service still rejects secrets, symbolic links, size violations, and overwrites.',
   },
   {
     pkg: '@deepseek-ai/dsh-tool-lsp',
