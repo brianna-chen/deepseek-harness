@@ -1,0 +1,11 @@
+# Installable MemoryMe layer. In a Web profile all three rows activate; in a
+# headless profile the client row remains pending while the model tool works.
+- insert:
+    - id: memory-me
+      name: '@brianna-chen/dsh-host-memory-me'
+
+    - id: tool-memory-me
+      name: '@brianna-chen/dsh-tool-memory-me'
+
+    - id: ui-settings-memory-me
+      name: '@brianna-chen/dsh-client-ui-settings-memory-me'

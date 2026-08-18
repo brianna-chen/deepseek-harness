@@ -42,9 +42,9 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
  * blocks. A package moves on or off this list with its context behavior.
  */
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
-  'packages/bundle/come-here': { kind: 'indirect', reason: 'The bundle only composes the Host, browser UI, and tool packages, which own their model-facing behavior.' },
-  'packages/client/ui-settings-come-here': { kind: 'none', reason: 'Browser-side settings workflow; registers nothing model-facing.' },
-  'packages/host/come-here': { kind: 'none', reason: 'Host-side migration service; the separate tool package owns the model-visible schema and results.' },
+  'packages/bundle/memory-me': { kind: 'indirect', reason: 'The bundle only composes the Host, browser UI, and tool packages, which own their model-facing behavior.' },
+  'packages/client/ui-settings-memory-me': { kind: 'none', reason: 'Browser-side settings workflow; registers nothing model-facing.' },
+  'packages/host/memory-me': { kind: 'none', reason: 'Host-side migration service; the separate tool package owns the model-visible schema and results.' },
   'packages/attachment/attachment': { kind: 'indirect', reason: 'The storage seam delegates model request rendering to provider adapters.' },
   'packages/attachment/attachment-local': { kind: 'indirect', reason: 'The local backend delegates model request rendering to provider adapters.' },
   'packages/shell/shell': { kind: 'indirect', reason: 'The service interface delegates all model rendering to dsh-tool-bash.' },

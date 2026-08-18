@@ -54,8 +54,8 @@ import * as ToolGoal from '@deepseek-ai/dsh-tool-goal'
 import * as ToolSchedule from '@deepseek-ai/dsh-schedule'
 import Lsp from '@deepseek-ai/dsh-lsp'
 import * as ToolLsp from '@deepseek-ai/dsh-tool-lsp'
-import ComeHereGateway from '@deepseek-ai/dsh-host-come-here'
-import * as ToolComeHere from '@deepseek-ai/dsh-tool-come-here'
+import MemoryMeGateway from '@brianna-chen/dsh-host-memory-me'
+import * as ToolMemoryMe from '@brianna-chen/dsh-tool-memory-me'
 import * as ToolSkill from '@deepseek-ai/dsh-tool-skill'
 import * as ToolSessionQuery from '@deepseek-ai/dsh-tool-session-query'
 import * as ToolTasks from '@deepseek-ai/dsh-tool-jobs'
@@ -379,17 +379,17 @@ const TOOL_PACKAGES: ToolPackage[] = [
       + 'management reads and mutations require the shared Session persistence barrier.',
   },
   {
-    pkg: '@deepseek-ai/dsh-tool-come-here',
-    dir: 'tool-come-here',
-    source: 'packages/tool/tool-come-here/src/index.ts',
-    requires: ['ctx.tools', 'ctx.comeHere', 'ctx.systemPrompt'],
-    writes: ['tool/call', 'create-only instruction or skill files after explicit confirmation', 'tool/result'],
+    pkg: '@brianna-chen/dsh-tool-memory-me',
+    dir: 'tool-memory-me',
+    source: 'packages/tool/tool-memory-me/src/index.ts',
+    requires: ['ctx.tools', 'ctx.memoryMe', 'ctx.systemPrompt'],
+    writes: ['tool/call', 'confirmed memory import or rollback', 'import history', 'tool/result'],
     async mount(ctx) {
-      await ctx.plugin(ComeHereGateway)
-      await ctx.plugin(ToolComeHere)
+      await ctx.plugin(MemoryMeGateway)
+      await ctx.plugin(ToolMemoryMe)
     },
     note:
-      'Server-side Codex and Claude Code memory migration. Discover and preview are read-only; import requires confirmed:true and the Host service still rejects secrets, symbolic links, size violations, and overwrites.',
+      'Codex, Claude Code, and Harness memory management. Discovery, preview, history, and export are read-only. Import and rollback require confirmed:true; conflicts support skip, safe rename, backed-up replace, and merge.',
   },
   {
     pkg: '@deepseek-ai/dsh-tool-lsp',

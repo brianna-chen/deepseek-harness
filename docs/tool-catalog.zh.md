@@ -30,7 +30,7 @@
 | `@deepseek-ai/dsh-tool-terminal` | `terminal_close`、`terminal_list`、`terminal_open`、`terminal_read`、`terminal_send`、`terminal_signal` | `ctx.tools`、`ctx.terminals`、`ctx.systemPrompt`、`ctx.jobs at call time for run_in_background` | `tool/call`、`tool/result` | - | 这 6 个终端工具需要选择启用，用于补充一次性 bash／文件系统工具。`terminal_send(run_in_background: true)` 会注册到 `ctx.jobs`；schema 不包含 TUI、具名按键序列、BEL、调整尺寸、自动启动和跨 agent 共享。 |
 | `@deepseek-ai/dsh-tool-goal` | `create_goal`、`get_goal`、`update_goal` | `ctx.tools`、`ctx.agents`、`ctx.goals`、`ctx.systemPrompt`、`a calling Agent in an authorized open turn` | `tool/call`、`goal/change for mutations`、`tool/result` | - | create、edit、pause 和 resume 要求直接来自人类的根权限；complete 和 blocked 也接受确切的当前 Goal Round。blocked 的默认下限是 3 个获准的 Round。 |
 | `@deepseek-ai/dsh-schedule` | `schedule_create`、`schedule_delete`、`schedule_list` | `ctx.tools`、`ctx.sessions`、Session 持久化、未来创建的 live 根 Agent | `tool/call`、`schedule/change create or delete`、`tool/result` | - | 仅在选择启用的 Schedule 插件加载后创建的 live 根 Agent scope 内注册。版本 1 接受 after_seconds、显式绝对 at 和有界固定速率 every_seconds，并披露 session-local 交付；管理读取与变更必须通过共享的 Session 持久化 barrier。 |
-| `@deepseek-ai/dsh-tool-come-here` | `come_here_memory` | `ctx.tools`、`ctx.comeHere`、`ctx.systemPrompt` | `tool/call`、`create-only instruction or skill files after explicit confirmation`、`tool/result` | - | 服务端 Codex 与 Claude Code 记忆迁移。发现和预览只读；导入要求 `confirmed:true`，Host 服务仍会拒绝密钥、符号链接、大小违规和覆盖写入。 |
+| `@brianna-chen/dsh-tool-memory-me` | `memory_me` | `ctx.tools`、`ctx.memoryMe`、`ctx.systemPrompt` | `tool/call`、`confirmed memory import or rollback`、`import history`、`tool/result` | - | Codex、Claude Code 与 Harness 记忆管理。发现、预览、历史和导出只读；导入与回滚要求 `confirmed:true`。冲突支持跳过、安全改名、备份后替换和合并。 |
 | `@deepseek-ai/dsh-tool-lsp` | `lsp` | `ctx.tools`、`ctx.lsp`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，因此其模型可见 schema 在更换提供方时保持稳定。运行时要求已注册提供方，例如 `@deepseek-ai/dsh-lsp-stdio`；如果没有提供方，查询会返回结构化 `LSP_UNAVAILABLE` 错误，而不会改变 schema。 |
 | `@deepseek-ai/dsh-tool-ralph` | `ralph` | `ctx.tools`、`ctx.workflowEngine`、`ctx.subagents`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents every fresh round)` | `tool/call`、`tool/result`、`workflow and child session events during execution` | - | 固定的前台工作流会在每个 Round 启动一个全新的结构化子级；模型只能选择不可变目标和可选的 Round 上限。 |
 | `@deepseek-ai/dsh-tool-skill` | `skill` | `ctx.tools`、`ctx.agents`、`ctx.skills` | `tool/call`、`tool/result`、`user/message replacement catalogs via agent.inject()` | - | - |
@@ -1134,13 +1134,13 @@ create、edit、pause 和 resume 要求直接来自人类的根权限；complete
 
 仅在选择启用的 Schedule 插件加载后创建的 live 根 Agent scope 内注册。版本 1 接受 after_seconds、显式绝对 at 和有界固定速率 every_seconds，并披露 session-local 交付；管理读取与变更必须通过共享的 Session 持久化 barrier。
 
-<a id="deepseek-aidsh-tool-come-here"></a>
+<a id="brianna-chendsh-tool-memory-me"></a>
 
-## `@deepseek-ai/dsh-tool-come-here`
+## `@brianna-chen/dsh-tool-memory-me`
 
-### `come_here_memory`
+### `memory_me`
 
-发现、预览或明确导入可移植的 Codex 与 Claude Code 指令和 Skill 到 DeepSeek Harness。导入前必须调用预览并向用户展示。除非用户明确批准该确切计划，否则不得设置 confirmed。
+管理可移植的 Codex、Claude Code 与 DeepSeek Harness 记忆。导入前必须预览准确差异和敏感信息提示。除非用户明确批准该确切操作，否则不得导入、替换、合并或回滚。
 
 ```json
 {
@@ -1148,16 +1148,19 @@ create、edit、pause 和 resume 要求直接来自人类的根权限；complete
   "properties": {
     "action": {
       "type": "string",
-      "description": "discover lists candidates; preview returns a non-writing plan; import applies an explicitly confirmed create-only plan.",
+      "description": "Discover, preview, import, list history, export Harness memory, or roll back a prior import.",
       "enum": [
         "discover",
         "preview",
-        "import"
+        "import",
+        "history",
+        "export",
+        "rollback"
       ]
     },
     "platforms": {
       "type": "array",
-      "description": "Source platforms to inspect.",
+      "description": "Source platforms for discover, preview, and import.",
       "items": {
         "type": "string",
         "enum": [
@@ -1168,42 +1171,51 @@ create、edit、pause 和 resume 要求直接来自人类的根权限；complete
     },
     "include_global": {
       "type": "boolean",
-      "description": "Inspect the selected platforms global memory roots."
+      "description": "Inspect global memory roots."
     },
     "include_project": {
       "type": "boolean",
-      "description": "Inspect one explicit remote project root."
+      "description": "Inspect one explicit project root."
     },
     "project_root": {
       "type": "string",
-      "description": "Absolute project root; required when include_project is true."
+      "description": "Absolute project root when project memory is included."
     },
     "candidate_ids": {
       "type": "array",
-      "description": "Exact candidate IDs returned by discover. Required for preview and import.",
+      "description": "Candidate IDs returned by discover.",
       "items": {
         "type": "string"
       }
     },
-    "rename_skill_conflicts": {
-      "type": "boolean",
-      "description": "Rename conflicting skills instead of skipping them. Instructions are never renamed."
+    "conflict_resolution": {
+      "type": "string",
+      "description": "Default conflict policy. Replace and merge are backed up before writing.",
+      "enum": [
+        "skip",
+        "rename",
+        "replace",
+        "merge"
+      ]
+    },
+    "manifest_path": {
+      "type": "string",
+      "description": "Exact rollback manifest returned by import."
     },
     "confirmed": {
       "type": "boolean",
-      "description": "Must be true for import, after the user has reviewed the preview."
+      "description": "Required for import and rollback after user approval."
     }
   },
   "required": [
-    "action",
-    "platforms",
-    "include_global",
-    "include_project"
+    "action"
   ]
 }
 ```
 
-来源：[`packages/tool/tool-come-here/src/index.ts`](../packages/tool/tool-come-here/src/index.ts)
+来源：[`packages/tool/tool-memory-me/src/index.ts`](../packages/tool/tool-memory-me/src/index.ts)
+
+Codex、Claude Code 与 Harness 记忆管理。发现、预览、历史和导出只读；导入与回滚要求 `confirmed:true`。冲突支持跳过、安全改名、备份后替换和合并。
 
 <a id="deepseek-aidsh-tool-lsp"></a>
 

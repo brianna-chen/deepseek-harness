@@ -1,0 +1,33 @@
+{
+  "name": "@brianna-chen/dsh-memory-me",
+  "description": "Installable DeepSeek Harness bundle for graphical and model-facing Codex and Claude Code memory migration",
+  "version": "0.2.0",
+  "publishConfig": { "access": "public" },
+  "repository": { "type": "git", "url": "git+https://github.com/brianna-chen/deepseek-harness.git", "directory": "packages/bundle/memory-me" },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": { "types": "./lib/types/index.d.ts", "default": "./lib/index.js" },
+    "./invariant": { "types": "./lib/types/invariant.d.ts", "default": "./lib/invariant.js" },
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": ["lib/index.js", "lib/invariant.js", "cordis.patch.yml", "lib/types/**/*.d.ts"],
+  "license": "MIT",
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "dependencies": {
+    "@brianna-chen/dsh-client-ui-settings-memory-me": "workspace:^",
+    "@brianna-chen/dsh-host-memory-me": "workspace:^",
+    "@brianna-chen/dsh-tool-memory-me": "workspace:^"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@deepseek-ai/dsh-invariants": "workspace:^"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@deepseek-ai/dsh-invariants": "workspace:^"
+  }
+}

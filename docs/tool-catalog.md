@@ -28,7 +28,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@deepseek-ai/dsh-tool-terminal` | `terminal_close`, `terminal_list`, `terminal_open`, `terminal_read`, `terminal_send`, `terminal_signal` | `ctx.tools`, `ctx.terminals`, `ctx.systemPrompt`, `ctx.jobs at call time for run_in_background` | `tool/call`, `tool/result` | - | The six terminal tools are opt-in and complement one-shot shell/filesystem tools. `terminal_send(run_in_background: true)` registers with `ctx.jobs`; TUI, named key sequences, BEL, resize, auto-start, and cross-agent sharing are absent from the schema. |
 | `@deepseek-ai/dsh-tool-goal` | `create_goal`, `get_goal`, `update_goal` | `ctx.tools`, `ctx.agents`, `ctx.goals`, `ctx.systemPrompt`, `a calling Agent in an authorized open turn` | `tool/call`, `goal/change for mutations`, `tool/result` | - | create, edit, pause, and resume require direct-human root authority; complete and blocked also accept the exact current goal round. The default blocked lower bound is three admitted rounds. |
 | `@deepseek-ai/dsh-schedule` | `schedule_create`, `schedule_delete`, `schedule_list` | `ctx.tools`, `ctx.sessions`, `Session persistence`, `a future live root Agent` | `tool/call`, `schedule/change create or delete`, `tool/result` | - | Registered only inside live root Agent scopes created after the opt-in Schedule plugin loads. Version 1 accepts after_seconds, explicit absolute at, and bounded fixed-rate every_seconds, and discloses session-local delivery; management reads and mutations require the shared Session persistence barrier. |
-| `@deepseek-ai/dsh-tool-come-here` | `come_here_memory` | `ctx.tools`, `ctx.comeHere`, `ctx.systemPrompt` | `tool/call`, `create-only instruction or skill files after explicit confirmation`, `tool/result` | - | Server-side Codex and Claude Code memory migration. Discover and preview are read-only; import requires confirmed:true and the Host service still rejects secrets, symbolic links, size violations, and overwrites. |
+| `@brianna-chen/dsh-tool-memory-me` | `memory_me` | `ctx.tools`, `ctx.memoryMe`, `ctx.systemPrompt` | `tool/call`, `confirmed memory import or rollback`, `import history`, `tool/result` | - | Codex, Claude Code, and Harness memory management. Discovery, preview, history, and export are read-only. Import and rollback require confirmed:true; conflicts support skip, safe rename, backed-up replace, and merge. |
 | `@deepseek-ai/dsh-tool-lsp` | `lsp` | `ctx.tools`, `ctx.lsp`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | The lsp tool keeps provider selection and language-server subprocesses behind ctx.lsp, so its model-visible schema stays stable across providers. Requires a registered provider (e.g. `@deepseek-ai/dsh-lsp-stdio`) at runtime; without one, a query returns the structured `LSP_UNAVAILABLE` error rather than changing the schema. |
 | `@deepseek-ai/dsh-tool-ralph` | `ralph` | `ctx.tools`, `ctx.workflowEngine`, `ctx.subagents`, `ctx.systemPrompt`, `a calling Agent (exec.agent parents every fresh round)` | `tool/call`, `tool/result`, `workflow and child session events during execution` | - | A fixed foreground workflow starts one fresh structured child per round; the model selects only the immutable objective and an optional round cap. |
 | `@deepseek-ai/dsh-tool-skill` | `skill` | `ctx.tools`, `ctx.agents`, `ctx.skills` | `tool/call`, `tool/result`, `user/message replacement catalogs via agent.inject()` | - | - |
@@ -1130,13 +1130,13 @@ Source: [`packages/schedule/schedule/src/tools.ts`](../packages/schedule/schedul
 
 Registered only inside live root Agent scopes created after the opt-in Schedule plugin loads. Version 1 accepts after_seconds, explicit absolute at, and bounded fixed-rate every_seconds, and discloses session-local delivery; management reads and mutations require the shared Session persistence barrier.
 
-<a id="deepseek-aidsh-tool-come-here"></a>
+<a id="brianna-chendsh-tool-memory-me"></a>
 
-## `@deepseek-ai/dsh-tool-come-here`
+## `@brianna-chen/dsh-tool-memory-me`
 
-### `come_here_memory`
+### `memory_me`
 
-Discover, preview, or explicitly import portable Codex and Claude Code instructions and skills into DeepSeek Harness. Always call preview and show it to the user before import. Never set confirmed unless the user explicitly approves that exact plan.
+Manage portable Codex, Claude Code, and DeepSeek Harness memory. Preview exact differences and secret findings before import. Never import, replace, merge, or roll back unless the user explicitly approves that exact operation.
 
 ```json
 {
@@ -1144,16 +1144,19 @@ Discover, preview, or explicitly import portable Codex and Claude Code instructi
   "properties": {
     "action": {
       "type": "string",
-      "description": "discover lists candidates; preview returns a non-writing plan; import applies an explicitly confirmed create-only plan.",
+      "description": "Discover, preview, import, list history, export Harness memory, or roll back a prior import.",
       "enum": [
         "discover",
         "preview",
-        "import"
+        "import",
+        "history",
+        "export",
+        "rollback"
       ]
     },
     "platforms": {
       "type": "array",
-      "description": "Source platforms to inspect.",
+      "description": "Source platforms for discover, preview, and import.",
       "items": {
         "type": "string",
         "enum": [
@@ -1164,44 +1167,51 @@ Discover, preview, or explicitly import portable Codex and Claude Code instructi
     },
     "include_global": {
       "type": "boolean",
-      "description": "Inspect the selected platforms global memory roots."
+      "description": "Inspect global memory roots."
     },
     "include_project": {
       "type": "boolean",
-      "description": "Inspect one explicit remote project root."
+      "description": "Inspect one explicit project root."
     },
     "project_root": {
       "type": "string",
-      "description": "Absolute project root; required when include_project is true."
+      "description": "Absolute project root when project memory is included."
     },
     "candidate_ids": {
       "type": "array",
-      "description": "Exact candidate IDs returned by discover. Required for preview and import.",
+      "description": "Candidate IDs returned by discover.",
       "items": {
         "type": "string"
       }
     },
-    "rename_skill_conflicts": {
-      "type": "boolean",
-      "description": "Rename conflicting skills instead of skipping them. Instructions are never renamed."
+    "conflict_resolution": {
+      "type": "string",
+      "description": "Default conflict policy. Replace and merge are backed up before writing.",
+      "enum": [
+        "skip",
+        "rename",
+        "replace",
+        "merge"
+      ]
+    },
+    "manifest_path": {
+      "type": "string",
+      "description": "Exact rollback manifest returned by import."
     },
     "confirmed": {
       "type": "boolean",
-      "description": "Must be true for import, after the user has reviewed the preview."
+      "description": "Required for import and rollback after user approval."
     }
   },
   "required": [
-    "action",
-    "platforms",
-    "include_global",
-    "include_project"
+    "action"
   ]
 }
 ```
 
-Source: [`packages/tool/tool-come-here/src/index.ts`](../packages/tool/tool-come-here/src/index.ts)
+Source: [`packages/tool/tool-memory-me/src/index.ts`](../packages/tool/tool-memory-me/src/index.ts)
 
-Server-side Codex and Claude Code memory migration. Discover and preview are read-only; import requires confirmed:true and the Host service still rejects secrets, symbolic links, size violations, and overwrites.
+Codex, Claude Code, and Harness memory management. Discovery, preview, history, and export are read-only. Import and rollback require confirmed:true; conflicts support skip, safe rename, backed-up replace, and merge.
 
 <a id="deepseek-aidsh-tool-lsp"></a>
 

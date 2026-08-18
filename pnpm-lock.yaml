@@ -864,9 +864,9 @@ importers:
       '@deepseek-ai/dsh-goal':
         specifier: workspace:^
         version: link:../../goal/goal
-      '@deepseek-ai/dsh-host-come-here':
+      '@brianna-chen/dsh-host-memory-me':
         specifier: workspace:^
-        version: link:../../host/come-here
+        version: link:../../host/memory-me
       '@deepseek-ai/dsh-host-plugin-inventory':
         specifier: workspace:^
         version: link:../../host/plugin-inventory
@@ -1225,17 +1225,17 @@ importers:
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
 
-  packages/bundle/come-here:
+  packages/bundle/memory-me:
     dependencies:
-      '@deepseek-ai/dsh-client-ui-settings-come-here':
+      '@brianna-chen/dsh-client-ui-settings-memory-me':
         specifier: workspace:^
-        version: link:../../client/ui-settings-come-here
-      '@deepseek-ai/dsh-host-come-here':
+        version: link:../../client/ui-settings-memory-me
+      '@brianna-chen/dsh-host-memory-me':
         specifier: workspace:^
-        version: link:../../host/come-here
-      '@deepseek-ai/dsh-tool-come-here':
+        version: link:../../host/memory-me
+      '@brianna-chen/dsh-tool-memory-me':
         specifier: workspace:^
-        version: link:../../tool/tool-come-here
+        version: link:../../tool/tool-memory-me
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -1355,9 +1355,9 @@ importers:
       '@deepseek-ai/dsh-client-ui-settings':
         specifier: workspace:^
         version: link:../../client/ui-settings
-      '@deepseek-ai/dsh-client-ui-settings-come-here':
+      '@brianna-chen/dsh-client-ui-settings-memory-me':
         specifier: workspace:^
-        version: link:../../client/ui-settings-come-here
+        version: link:../../client/ui-settings-memory-me
       '@deepseek-ai/dsh-client-ui-settings-general':
         specifier: workspace:^
         version: link:../../client/ui-settings-general
@@ -1412,9 +1412,9 @@ importers:
       '@deepseek-ai/dsh-host-apiproxy':
         specifier: workspace:^
         version: link:../../host/apiproxy
-      '@deepseek-ai/dsh-host-come-here':
+      '@brianna-chen/dsh-host-memory-me':
         specifier: workspace:^
-        version: link:../../host/come-here
+        version: link:../../host/memory-me
       '@deepseek-ai/dsh-host-directory-picker-auto':
         specifier: workspace:^
         version: link:../../host/directory-picker-auto
@@ -1454,9 +1454,9 @@ importers:
       '@deepseek-ai/dsh-storage-json':
         specifier: workspace:^
         version: link:../../storage/storage-json
-      '@deepseek-ai/dsh-tool-come-here':
+      '@brianna-chen/dsh-tool-memory-me':
         specifier: workspace:^
-        version: link:../../tool/tool-come-here
+        version: link:../../tool/tool-memory-me
       '@deepseek-ai/dsh-web-frontend':
         specifier: workspace:^
         version: link:../../../apps/web
@@ -2472,7 +2472,7 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
 
-  packages/client/ui-settings-come-here:
+  packages/client/ui-settings-memory-me:
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -4875,7 +4875,7 @@ importers:
         specifier: workspace:^
         version: link:../../typert/registry
 
-  packages/host/come-here:
+  packages/host/memory-me:
     dependencies:
       zod:
         specifier: ^4.4.3
@@ -7919,14 +7919,14 @@ importers:
         specifier: workspace:^
         version: link:../../interaction/user-questions
 
-  packages/tool/tool-come-here:
+  packages/tool/tool-memory-me:
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/dsh-host-come-here':
+      '@brianna-chen/dsh-host-memory-me':
         specifier: workspace:^
-        version: link:../../host/come-here
+        version: link:../../host/memory-me
       '@deepseek-ai/dsh-invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants

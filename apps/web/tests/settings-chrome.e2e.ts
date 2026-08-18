@@ -129,18 +129,18 @@ describe('web e2e: settings modal and General preferences', () => {
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 
-  it('previews and confirms a create-only ComeHere browser import', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-settings-come-here'))
+  it('previews and confirms a Memory ME browser import', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-settings-memory-me'))
     await page.getByRole('button', { name: '设置', exact: true }).click()
     const dialog = page.getByRole('dialog', { name: '设置' })
-    await dialog.getByRole('button', { name: 'ComeHere', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Memory ME', exact: true }).click()
     await dialog.getByRole('heading', { name: '迁移 AI 编程记忆' }).waitFor({ timeout: 10_000 })
     expect(await dialog.getByText('不会读取聊天记录、凭据、Cookie、Token、日志或平台数据库。', { exact: true }).count()).toBe(1)
 
     await dialog.locator('input[type="file"]').setInputFiles({
       name: 'AGENTS.md',
       mimeType: 'text/markdown',
-      buffer: Buffer.from('# Imported by ComeHere\n'),
+      buffer: Buffer.from('# Imported by Memory ME\n'),
     })
     await dialog.getByRole('button', { name: '扫描可导入内容' }).click()
     await dialog.getByRole('heading', { name: '选择要导入的内容' }).waitFor({ timeout: 10_000 })
@@ -154,7 +154,7 @@ describe('web e2e: settings modal and General preferences', () => {
     await start.click()
     await dialog.getByRole('heading', { name: '导入完成' }).waitFor({ timeout: 10_000 })
     expect(await dialog.getByText('成功: 1', { exact: true }).count()).toBe(1)
-    expect(await readFile(join(scaffold.harnessHome, 'AGENTS.md'), 'utf8')).toBe('# Imported by ComeHere\n')
+    expect(await readFile(join(scaffold.harnessHome, 'AGENTS.md'), 'utf8')).toBe('# Imported by Memory ME\n')
     await page.keyboard.press('Escape')
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)

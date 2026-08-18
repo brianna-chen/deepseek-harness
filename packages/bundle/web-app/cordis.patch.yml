@@ -94,11 +94,11 @@
     - id: plugin-inventory
       name: '@deepseek-ai/dsh-host-plugin-inventory'
 
-    - id: come-here
-      name: '@deepseek-ai/dsh-host-come-here'
+    - id: memory-me
+      name: '@brianna-chen/dsh-host-memory-me'
 
-    - id: tool-come-here
-      name: '@deepseek-ai/dsh-tool-come-here'
+    - id: tool-memory-me
+      name: '@brianna-chen/dsh-tool-memory-me'
 
     # The API gateway: the transport-agnostic dispatch face every client shape
     # shares. The base layer's agent-default-model service owns the default model.
@@ -201,8 +201,8 @@
     - id: ui-settings-plugin-inventory
       name: '@deepseek-ai/dsh-client-ui-settings-plugin-inventory'
 
-    - id: ui-settings-come-here
-      name: '@deepseek-ai/dsh-client-ui-settings-come-here'
+    - id: ui-settings-memory-me
+      name: '@brianna-chen/dsh-client-ui-settings-memory-me'
 
     - id: ui-conversation
       name: '@deepseek-ai/dsh-client-ui-conversation'
